@@ -1,12 +1,12 @@
 package ts.projekt.userDB;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.sql.*;
 
 public class Database {
-    public static Database bazaDanych = new Database();
+    public static Database database = new Database();
     private static Connection conn;
-    private PreparedStatement statement;
-    private ResultSet result;
 
     private Database() {
         Connection conn = null;
@@ -27,31 +27,35 @@ public class Database {
     }
 
     public void addUser(AuthUser user) throws SQLException {
-        statement = conn.prepareStatement("""
-        INSERT INTO users(username, email, passwordhash, salt) 
-        VALUES(?, ?, ?, ?); 
-""");
+        PreparedStatement statement = conn.prepareStatement("""
+                        INSERT INTO users(username, email, passwordhash, salt) 
+                        VALUES(?, ?, ?, ?); 
+                """);
         statement.setString(1, user.getUser().getUsername());
         statement.setString(2, user.getUser().getEmail());
         statement.setString(3, user.getHash());
         statement.setBytes(4, user.getSalt());
         statement.execute();
+        statement.close();
     }
 
     public boolean checkIfDbExists() throws SQLException {
-        statement = conn.prepareStatement("""
-            SELECT *
-            FROM information_schema.tables
-            WHERE table_schema = 'users' 
-                AND table_name = 'users'
-            LIMIT 1;
-        """);
-        result = statement.executeQuery();
-        return result.next();
+        PreparedStatement statement = conn.prepareStatement("""
+                    SELECT *
+                    FROM information_schema.tables
+                    WHERE table_schema = 'users' 
+                        AND table_name = 'users'
+                    LIMIT 1;
+                """);
+        ResultSet result = statement.executeQuery();
+        boolean exists = result.next();
+        result.close();
+        statement.close();
+        return exists;
     }
 
     private void createDb() throws SQLException {
-        statement = conn.prepareStatement("""
+        PreparedStatement statement = conn.prepareStatement("""
                 CREATE TABLE `users` (
                   `id` int(11) NOT NULL AUTO_INCREMENT,
                   `username` varchar(32) NOT NULL,
@@ -64,8 +68,31 @@ public class Database {
                   UNIQUE KEY `users_username_uindex` (`username`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='User database';
                 """);
+        statement.execute();
     }
-    public static void main(String[] args){
+
+    public User getUser(int id) throws SQLException {
+        PreparedStatement statement = conn.prepareStatement("""
+            SELECT username, email FROM users u WHERE u.id = ?
+            """);
+        ResultSet result = statement.executeQuery();
+        statement.close();
+        result.close();
+        return null;
+    }
+
+    public ImmutablePair<String, byte[]> getPassword(int id) throws SQLException {
+        PreparedStatement statement = conn.prepareStatement("""
+            SELECT u.passwordhash, u.salt FROM users u WHERE u.id = ?
+            """);
+        ResultSet result = statement.executeQuery();
+
+        result.close();
+        statement.close();
+        return null;
+    }
+
+    public static void main(String[] args) {
 
     }
 }
