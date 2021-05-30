@@ -73,12 +73,17 @@ public class Database {
 
     public User getUser(int id) throws SQLException {
         PreparedStatement statement = conn.prepareStatement("""
-                SELECT username, email FROM users u WHERE u.id = ?
+                SELECT id, username, email FROM users u WHERE u.id = ?
                 """);
+        statement.setInt(1, id);
         ResultSet result = statement.executeQuery();
+        User newUser = null;
+        if (result.next()){
+            newUser = new User(result.getString("username"), result.getInt("id"), result.getString("email"));
+        }
         statement.close();
         result.close();
-        return null;
+        return newUser;
     }
 
     public ImmutablePair<String, byte[]> getPassword(int id) throws SQLException {

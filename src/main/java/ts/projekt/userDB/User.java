@@ -1,6 +1,8 @@
 package ts.projekt.userDB;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String username;
     private int id;
     private String email;
@@ -9,6 +11,9 @@ public class User {
         this.username = username;
         this.id = id;
         this.email = email;
+    }
+
+    public User() {
     }
 
     public User(int id) {
