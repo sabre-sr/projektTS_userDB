@@ -71,11 +71,20 @@ public class Database {
         statement.execute();
     }
 
-    public User getUser(int id) throws SQLException {
-        PreparedStatement statement = conn.prepareStatement("""
-                SELECT id, username, email FROM users u WHERE u.id = ?
-                """);
-        statement.setInt(1, id);
+    public User getUser(User user) throws SQLException {
+        PreparedStatement statement;
+        if (user.getId() != 0){
+            statement = conn.prepareStatement("""
+                    SELECT id, username, email FROM users u WHERE u.id = ?
+                    """);
+            statement.setInt(1, user.getId());
+        }
+        else {
+            statement = conn.prepareStatement("""
+                    SELECT id, username, email FROM users u WHERE u.username = ?
+                    """);
+            statement.setString(1, user.getUsername());
+        }
         ResultSet result = statement.executeQuery();
         User newUser = null;
         if (result.next()){
@@ -85,6 +94,7 @@ public class Database {
         result.close();
         return newUser;
     }
+
 
     public ImmutablePair<String, byte[]> getPassword(int id) throws SQLException {
         PreparedStatement statement = conn.prepareStatement("""
@@ -104,4 +114,5 @@ public class Database {
     public static void main(String[] args) {
 
     }
+
 }
