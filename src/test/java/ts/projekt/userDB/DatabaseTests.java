@@ -16,13 +16,6 @@ public class DatabaseTests {
         hashPair = new ImmutablePair<>("test", hexStringToByteArray(testSalt));
     }
 
-    @Test
-    public void getHashPairTest() throws SQLException {
-        ImmutablePair<String, byte[]> result = Database.database.getPassword(1);
-        Assert.assertEquals(result.left, hashPair.left);
-        Assert.assertArrayEquals(result.right, hashPair.right);
-    }
-
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
         byte[] data = new byte[len / 2];

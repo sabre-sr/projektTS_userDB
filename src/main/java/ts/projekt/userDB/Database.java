@@ -28,13 +28,11 @@ public class Database {
 
     public void addUser(AuthUser user) throws SQLException {
         PreparedStatement statement = conn.prepareStatement("""
-                        INSERT INTO users(username, email, passwordhash, salt) 
-                        VALUES(?, ?, ?, ?); 
+                        INSERT INTO users(username, email) 
+                        VALUES(?, ?,); 
                 """);
         statement.setString(1, user.getUser().getUsername());
         statement.setString(2, user.getUser().getEmail());
-        statement.setString(3, user.getHash());
-        statement.setBytes(4, user.getSalt());
         statement.execute();
         statement.close();
     }
@@ -56,17 +54,11 @@ public class Database {
 
     private void createDb() throws SQLException {
         PreparedStatement statement = conn.prepareStatement("""
-                CREATE TABLE `users` (
-                  `id` int(11) NOT NULL AUTO_INCREMENT,
-                  `username` varchar(32) NOT NULL,
-                  `email` varchar(64) NOT NULL,
-                  `passwordhash` varchar(512) NOT NULL,
-                  `salt` binary(16) NOT NULL,
-                  PRIMARY KEY (`id`),
-                  UNIQUE KEY `users_email_uindex` (`email`),
-                  UNIQUE KEY `users_id_uindex` (`id`),
-                  UNIQUE KEY `users_username_uindex` (`username`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='User database';
+                CREATE TABLE users (
+                  id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
+                  username varchar(32) NOT NULL UNIQUE,
+                  email varchar(64) NOT NULL UNIQUE,
+                )COMMENT='User database';
                 """);
         statement.execute();
     }
@@ -93,22 +85,6 @@ public class Database {
         statement.close();
         result.close();
         return newUser;
-    }
-
-
-    public ImmutablePair<String, byte[]> getPassword(int id) throws SQLException {
-        PreparedStatement statement = conn.prepareStatement("""
-                SELECT u.passwordhash, u.salt FROM users u WHERE u.id = ?
-                """);
-        statement.setInt(1, id);
-        ResultSet result = statement.executeQuery();
-        ImmutablePair<String, byte[]> authData = null;
-        if (result.next()) {
-            authData = new ImmutablePair<>(result.getString("passwordhash"), result.getBytes("salt"));
-        }
-        result.close();
-        statement.close();
-        return authData;
     }
 
     public static void main(String[] args) {
