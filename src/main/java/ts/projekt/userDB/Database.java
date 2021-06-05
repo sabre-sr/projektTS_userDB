@@ -26,15 +26,22 @@ public class Database {
         }
     }
 
-    public void addUser(AuthUser user) throws SQLException {
+    public int addUser(User user) throws SQLException {
         PreparedStatement statement = conn.prepareStatement("""
                         INSERT INTO users(username, email) 
-                        VALUES(?, ?,); 
-                """);
-        statement.setString(1, user.getUser().getUsername());
-        statement.setString(2, user.getUser().getEmail());
+                        VALUES(?, ?); 
+                """, Statement.RETURN_GENERATED_KEYS);
+        statement.setString(1, user.getUsername());
+        statement.setString(2, user.getEmail());
         statement.execute();
+        ResultSet keys = statement.getGeneratedKeys();
+        int id=0;
+        if (keys.next()) {
+            id = keys.getInt(1);
+        }
         statement.close();
+        keys.close();
+        return id;
     }
 
     public boolean checkIfDbExists() throws SQLException {
@@ -57,7 +64,7 @@ public class Database {
                 CREATE TABLE users (
                   id int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY UNIQUE,
                   username varchar(32) NOT NULL UNIQUE,
-                  email varchar(64) NOT NULL UNIQUE,
+                  email varchar(64) NOT NULL UNIQUE
                 )COMMENT='User database';
                 """);
         statement.execute();
