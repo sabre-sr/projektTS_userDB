@@ -16,6 +16,7 @@ public class DatabaseService {
         }
         return user;
     }
+
     @GetMapping(path = "users")
     public User getUser(@RequestParam(value = "username") String login) {
         User user = new User();
@@ -26,12 +27,19 @@ public class DatabaseService {
         }
         return user;
     }
+
     @PostMapping(path = "register")
     public User register(@RequestBody User user) throws SQLException {
         int id = Database.database.addUser(user);
         if (id == 0) {
-            return null;
-        }
-        else return Database.database.getUser(new User(id));
+            User temp = new User();
+            temp.setId(0);
+            return temp;
+        } else return Database.database.getUser(new User(id));
+    }
+
+    @GetMapping(path = "delete/{id}")
+    public void delete(@PathVariable int id) {
+
     }
 }
