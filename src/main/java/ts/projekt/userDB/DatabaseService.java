@@ -18,7 +18,7 @@ public class DatabaseService {
     }
 
     @GetMapping(path = "users")
-    public User getUser(@RequestParam(value = "username") String login) {
+    public User getUser(@RequestParam(value = "login") String login) {
         User user = new User();
         try {
             user = Database.database.getUser(new User(login));

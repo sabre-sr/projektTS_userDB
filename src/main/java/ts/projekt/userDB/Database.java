@@ -28,8 +28,8 @@ public class Database {
 
     public int addUser(User user) throws SQLException {
         PreparedStatement statement = conn.prepareStatement("""
-                        INSERT INTO users(username, email) 
-                        VALUES(?, ?); 
+                        INSERT INTO users(username, email)
+                        VALUES(?, ?);
                 """, Statement.RETURN_GENERATED_KEYS);
         statement.setString(1, user.getUsername());
         statement.setString(2, user.getEmail());
